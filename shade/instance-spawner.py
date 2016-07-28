@@ -63,7 +63,7 @@ def start():
         number = CONF.command.number
         while number % CONF.command.parallel:
             number = number + 1
-        for x in range(1, number, CONF.command.parallel):
+        for x in range(1, number + 1, CONF.command.parallel):
             name = "%s-%s" % (
                 CONF.command.prefix,
                 ''.join(random.sample(string.ascii_lowercase, 6)))
