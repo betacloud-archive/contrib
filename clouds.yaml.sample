@@ -1,6 +1,6 @@
 ---
 clouds:
- de-1:
+ betacloud:
    auth:
      username: YOUR_USERNAME
      password: YOUR_PASSWORD
@@ -9,4 +9,3 @@ clouds:
      project_domain_name: YOUR_DOMAINNAME
      user_domain_name: YOUR_DOMAINNAME
    identity_api_version: 3
-   region_name: de-1
