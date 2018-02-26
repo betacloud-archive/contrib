@@ -21,12 +21,9 @@ import shade
 PROJECT_NAME = 'glance-share-image'
 CONF = cfg.CONF
 opts = [
-    cfg.StrOpt('cloud', default='betacloud',
-               help='Managed cloud'),
-    cfg.StrOpt('image', required=True,
-               help='Image to share'),
-    cfg.StrOpt('target', required=True,
-               help='Target project')
+    cfg.StrOpt('cloud', help='Managed cloud'),
+    cfg.StrOpt('image', required=True, help='Image to share'),
+    cfg.StrOpt('target', required=True, help='Target project')
 ]
 CONF.register_cli_opts(opts)
 

@@ -25,8 +25,7 @@ CONF = cfg.CONF
 LOG = log.getLogger(PROJECT_NAME)
 
 opts = [
-    cfg.StrOpt('cloud',
-               help='Managed cloud'),
+    cfg.StrOpt('cloud', help='Managed cloud'),
 ]
 CONF.register_cli_opts(opts)
 
@@ -83,26 +82,20 @@ def start():
 def add_command_parsers(subparsers):
     parser = subparsers.add_parser('start')
     parser.set_defaults(func=start)
-    parser.add_argument('--flavor', required=True,
-                        help='Flavor name or ID')
-    parser.add_argument('--floating', action='store_true', default=False,
-                        help='Assign floating IP address')
-    parser.add_argument('--image', required=True,
-                        help='Image name or ID')
-    parser.add_argument('--key', required=True,
-                        help='SSH key name')
-    parser.add_argument('--network', required=True,
-                        help='Network name or ID')
-    parser.add_argument('--number', required=True, type=int,
-                        help='Number of instances')
-    parser.add_argument('--parallel', required=False, type=int, default=1,
-                        help='Spawn in parallel')
-    parser.add_argument('--prefix', required=True,
-                        help='Instance name prefix')
+    parser.add_argument('--flavor', required=True, help='Flavor name or ID')
+    parser.add_argument('--floating', action='store_true', default=False, help='Assign floating IP address')
+    parser.add_argument('--image', required=True, help='Image name or ID')
+    parser.add_argument('--key', required=True, help='SSH key name')
+    parser.add_argument('--network', required=True, help='Network name or ID')
+    parser.add_argument('--number', required=True, type=int, help='Number of instances')
+    parser.add_argument('--parallel', required=False, type=int, default=1, help='Spawn in parallel')
+    parser.add_argument('--prefix', required=True, help='Instance name prefix')
 
-commands = cfg.SubCommandOpt('command', title='Commands',
-                             help='Show available commands.',
-                             handler=add_command_parsers)
+commands = cfg.SubCommandOpt(
+    'command', title='Commands',
+    help='Show available commands.',
+    handler=add_command_parsers
+)
 CONF.register_cli_opts([commands])
 
 
