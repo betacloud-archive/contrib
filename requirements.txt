@@ -1,3 +1,8 @@
 oslo.config
 oslo.log
+python-cinderclient
+python-glanceclient
+python-keystoneclient
+python-neutronclient
+python-novaclient
 shade
