@@ -2,9 +2,6 @@
 Contrib
 =======
 
-.. image:: https://travis-ci.org/betacloud/contrib.svg?branch=master
-    :target: https://travis-ci.org/betacloud/contrib
-
 Usage
 =====
 
