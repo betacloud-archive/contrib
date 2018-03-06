@@ -32,14 +32,13 @@ def check_quota(project, cloud):
 
     print "check network quota for %s" % project.name
     quotanetwork = cloud.get_network_quotas(project.id)
-    quotaupdate = False
     for key in quotaclasses[project.quotaclass]["network"]:
         if key in ["security_group_rule"]:
             tmultiplier = 1
         else:
             tmultiplier = multiplier
-        if quotaclasses[project.quotaclass]["network"][key] != quotanetwork[key] * multiplier:
-            print "%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key], quotanetwork[key] * tmultiplier)
+        if quotaclasses[project.quotaclass]["network"][key] * tmultiplier != quotanetwork[key]:
+            print "%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key] * tmultiplier, quotanetwork[key])
             cloud.set_network_quotas(project.id, **{key: quotaclasses[project.quotaclass]["network"][key] * tmultiplier})
 
     print "check compute quota for %s" % project.name
@@ -49,8 +48,8 @@ def check_quota(project, cloud):
             tmultiplier = 1
         else:
             tmultiplier = multiplier
-        if quotaclasses[project.quotaclass]["compute"][key] != quotacompute[key] * tmultiplier:
-            print "%s [ compute / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["compute"][key], quotacompute[key] * tmultiplier)
+        if quotaclasses[project.quotaclass]["compute"][key] * tmultiplier != quotacompute[key]:
+            print "%s [ compute / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["compute"][key] * tmultiplier, quotacompute[key])
             cloud.set_compute_quotas(project.id, **{key: quotaclasses[project.quotaclass]["compute"][key] * tmultiplier})
 
     print "check volume quota for %s" % project.name
@@ -60,9 +59,9 @@ def check_quota(project, cloud):
             tmultiplier = 1
         else:
             tmultiplier = multiplier
-        if quotaclasses[project.quotaclass]["volume"][key] != quotavolume[key] * tmultiplier:
-            print "%s [ volume %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["volume"][key], quotavolume[key] * tmultiplier)
-            cloud.set_volume_quotas(project.id, **{key: quotaclasses[project.quotaclass]["volume"][key] * multiplier})
+        if quotaclasses[project.quotaclass]["volume"][key] * tmultiplier != quotavolume[key]:
+            print "%s [ volume %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["volume"][key] * tmultiplier, quotavolume[key])
+            cloud.set_volume_quotas(project.id, **{key: quotaclasses[project.quotaclass]["volume"][key] * tmultiplier})
 
 
 def create_network_resources(project, domain):
