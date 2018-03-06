@@ -132,5 +132,6 @@ else:
     else:
         check_quota(project, cloud)
 
-domain = cloud.get_domain(project.domain_id)
-create_network_resources(project, domain)
+        if project.quotaclass not in ["default", "service"]:
+            domain = cloud.get_domain(project.domain_id)
+            create_network_resources(project, domain)
