@@ -28,16 +28,22 @@ keystone = os_client_config.make_client("identity", cloud=CLOUDNAME)
 
 existing_endpoint_groups = {x.name: x for x in keystone.endpoint_groups.list()}
 
+changed = False
 for service in [x for x in keystone.services.list() if x.name not in existing_endpoint_groups.keys()]:
-    print("create endpoint for service %s (%s)" % (service.name, service.id))
-    payload = {
-        "name": service.name,
-        "filters": {
-            "interface": "public",
-            "service_id": service.id
+    for interface in ["public", "admin", "internal"]:
+        changed = True
+        print("create endpoint %s for service %s (%s)" % (interface, service.name, service.id))
+        payload = {
+            "name": "%s-%s" % (service.name, interface),
+            "filters": {
+                "interface": interface,
+                "service_id": service.id
+            }
         }
-    }
-    keystone.endpoint_groups.create(**payload)
+        keystone.endpoint_groups.create(**payload)
+
+if changed:
+    existing_endpoint_groups = {x.name: x for x in keystone.endpoint_groups.list()}
 
 result = []
 for endpoint_group in existing_endpoint_groups:

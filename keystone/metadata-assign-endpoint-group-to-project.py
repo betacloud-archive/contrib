@@ -31,13 +31,13 @@ CLOUDNAME = 'service'
 # openstack --os-cloud service project set --property has_nova=True testbed
 
 BASE_ENDPOINT_GROUPS = {
-    "has_cinder": ["cinder", "cinderv2", "cinderv3"],
-    "has_glance": ["glance"],
-    "has_heat": ["heat", "heat-cfn"],
-    "has_keystone": ["keystone"],
-    "has_mistral": ["mistral"],
-    "has_neutron": ["neutron"],
-    "has_nova": ["nova", "nova_legacy"],
+    "has_cinder": ["cinder-public", "cinderv2-public", "cinderv3-public"],
+    "has_glance": ["glance-public"],
+    "has_heat": ["heat-public", "heat-cfn-public"],
+    "has_keystone": ["keystone-public"],
+    "has_mistral": ["mistral-public"],
+    "has_neutron": ["neutron-public"],
+    "has_nova": ["nova-public", "nova_legacy-public"],
 }
 
 cloud = shade.operator_cloud(cloud=CLOUDNAME)
