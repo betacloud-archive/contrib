@@ -65,19 +65,27 @@ def check_quota(project, cloud):
             cloud.set_volume_quotas(project.id, **{key: quotaclasses[project.quotaclass]["volume"][key] * multiplier})
 
 
-def get_public_network_id():
-    return cloud.get_network("public").id
+def create_network_resources(project, domain):
 
+    domain_name = domain.name.lower()
+    project_name = project.name.lower()
+    router_name = "router-to-%s-public-%s" % (domain_name, project_name)
+    net_name = "net-to-%s-public-%s" % (domain_name, project_name)
+    subnet_name = "subnet-to-%s-public-%s" % (domain_name, project_name)
 
-def create_router(project):
-    router = cloud.get_router("router-to-public-%s" % project.name)
+    if domain_name == "default":
+        public_net_name = "public"
+    else:
+        public_net_name = "%s-public" % domain_name
+
+    router = cloud.get_router(router_name)
     attach = False
 
     if not router:
+        public_network_id = cloud.get_network(public_net_name).id
         print "create router for %s" % project.name
-        public_network_id = get_public_network_id()
         router = cloud.create_router(
-            name="router-to-public-%s" % project.name,
+            name=router_name,
             ext_gateway_net_id=public_network_id,
             enable_snat=True,
             project_id=project.id,
@@ -85,18 +93,18 @@ def create_router(project):
         )
         attach = True
 
-    net = cloud.get_network("net-to-public-%s" % project.name)
+    net = cloud.get_network(net_name)
     if not net:
         print "create network for %s" % project.name
-        net = cloud.create_network("net-to-public-%s" % project.name, project_id=project.id, availability_zone_hints=["south-1"])
+        net = cloud.create_network(net_name, project_id=project.id, availability_zone_hints=["south-1"])
 
-    subnet = cloud.get_subnet("subnet-to-public-%s" % project.name)
+    subnet = cloud.get_subnet(subnet_name)
     if not subnet:
         print "create subnetwork for %s" % project.name
         subnet = cloud.create_subnet(
             net.id,
             tenant_id=project.id,
-            subnet_name="subnet-to-public-%s" % project.name,
+            subnet_name=subnet_name,
             use_default_subnetpool=True,
             enable_dhcp=True
         )
@@ -124,3 +132,6 @@ else:
         print("quotaclass %s for project %s not defined" % (project.quotaclass, project.name))
     else:
         check_quota(project, cloud)
+
+domain = cloud.get_domain(project.domain_id)
+create_network_resources(project, domain)
