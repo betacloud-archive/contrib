@@ -66,7 +66,7 @@ for group in [x for x in project.to_dict() if x.startswith("has_") and x in BASE
         for endpoint in BASE_ENDPOINT_GROUPS[group]:
             print("unassign endpoint group %s from project %s" % (endpoint, os.environ.get("PROJECT")))
             try:
-                keystone.endpoint_filter.delete_endpoint_group_to_project(
+                keystone.endpoint_filter.delete_endpoint_group_from_project(
                     endpoint_group=existing_endpoint_groups[endpoint].id,
                     project=os.environ.get("PROJECT")
                 )
