@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
 import os
 import sys
 
@@ -21,14 +22,22 @@ import shade
 
 CLOUDNAME = 'service'
 
+# openstack --os-cloud service project set --property has_cinder=True testbed
+# openstack --os-cloud service project set --property has_glance=True testbed
+# openstack --os-cloud service project set --property has_heat=True testbed
+# openstack --os-cloud service project set --property has_keystone=True testbed
+# openstack --os-cloud service project set --property has_mistral=True testbed
+# openstack --os-cloud service project set --property has_neutron=True testbed
+# openstack --os-cloud service project set --property has_nova=True testbed
+
 BASE_ENDPOINT_GROUPS = {
-    "has_nova": ["nova", "nova_legacy"],
+    "has_cinder": ["cinder", "cinderv2", "cinderv3"],
+    "has_glance": ["glance"],
     "has_heat": ["heat", "heat-cfn"],
     "has_keystone": ["keystone"],
-    "has_cinder": ["cinder", "cinderv2", "cinderv3"],
+    "has_mistral": ["mistral"],
     "has_neutron": ["neutron"],
-    "has_glance": ["glance"],
-    "has_mistral": ["mistral"]
+    "has_nova": ["nova", "nova_legacy"],
 }
 
 cloud = shade.operator_cloud(cloud=CLOUDNAME)
