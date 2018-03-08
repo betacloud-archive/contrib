@@ -9,3 +9,5 @@ python-novaclient
 shade
 tabulate
 python-dateutil
+jinja2
+requests
