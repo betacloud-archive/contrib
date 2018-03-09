@@ -18,6 +18,7 @@ body: |
 
   openstack server set {{ id }} --property expiration_datetime="{{ next_expiration_datetime }}"
 
+
   To get another reminder {{ reminder_time }} day(s) before the {{ type }} expires use the following command.
 
   openstack server set {{ id }} --property expiration_reminder=False
@@ -28,6 +29,7 @@ body: |
   To extend the {{ type }} by {{ next_expiration_time }} day(s), this command can be used. The renewal is also possible via Horizon.
 
   openstack volume set {{ id }} --property expiration_datetime="{{ next_expiration_datetime }}"
+
 
   To get another reminder {{ reminder_time }} day(s) before the {{ type }} expires use the following command.
 
