@@ -104,7 +104,12 @@ for server in result:
         except:
             pass
     else:
-        expiration_datetime = parse(server.metadata.expiration_datetime)
+        try:
+            expiration_datetime = parse(server.metadata.expiration_datetime)
+        except:
+            expiration_datetime = created_at + EXPIRATION_TIME
+            print("set correct expiration_datetime %s for instance %s" % (expiration_datetime, server.id))
+            compute.servers.set_meta_item(server, "expiration_datetime", str(expiration_datetime))
 
         try:
             expiration_datetime - REMINDER_TIME < now
@@ -136,7 +141,7 @@ for server in result:
         print("instance %s has reached the desired lifetime (%s)" % (server.id, lifetime))
         delete_server = True
 
-    elif expiration_datetime > created_at + MAX_EXPIRATION_TIME:
+    elif created_at + MAX_EXPIRATION_TIME < now:
         print("instance %s has reached the maximum possible lifetime (%s)" % (server.id, lifetime))
         delete_server = True
 
