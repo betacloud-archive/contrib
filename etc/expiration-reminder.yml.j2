@@ -9,18 +9,29 @@ body: |
 
   a) If you don't need this {{ type }} any longer, please delete the {{ type }}.
 
-  b) If you want to extend the lifetime of your {{ type }}, set the instance metadata expiration_datetime to the new time. Please note the maximum possible lifetime of {{ max_expiration_time }} days.
+  b) If you want to extend the lifetime of your {{ type }}, set the {{ type }} metadata expiration_datetime to the new time. Please note the maximum possible lifetime of {{ max_expiration_time }} day(s).
 
   {%- if type == "instance" %}
 
 
-  To extend the {{ type }} by {{ next_expiration_time }} day, this command can be used:
+  To extend the {{ type }} by {{ next_expiration_time }} day(s), this command can be used. The renewal is also possible via Horizon.
 
   openstack server set {{ id }} --property expiration_datetime="{{ next_expiration_datetime }}"
 
-  To get another reminder {{ reminder_time }} days before the {{ type }} expires use the following command:
+  To get another reminder {{ reminder_time }} day(s) before the {{ type }} expires use the following command.
 
   openstack server set {{ id }} --property expiration_reminder=False
+  {%- endif %}
+  {%- if type == "volume" %}
+
+
+  To extend the {{ type }} by {{ next_expiration_time }} day(s), this command can be used. The renewal is also possible via Horizon.
+
+  openstack volume set {{ id }} --property expiration_datetime="{{ next_expiration_datetime }}"
+
+  To get another reminder {{ reminder_time }} day(s) before the {{ type }} expires use the following command.
+
+  openstack volume set {{ id }} --property expiration_reminder=False
   {%- endif %}
 
   -- 

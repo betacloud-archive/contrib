@@ -29,7 +29,7 @@ import yaml
 
 # configuration
 
-CLOUDNAME = os.environ.get("CLOUDNAME", "service")
+CLOUDNAME = os.environ.get("CLOUDNAME", "sandbox")
 
 PROJECTNAME = os.environ.get("PROJECTNAME", "sandbox")
 DOMAINNAME = os.environ.get("DOMAINNAME", "Default")
@@ -74,7 +74,8 @@ def send_mail(to, payload):
 # preparations
 
 cloud = shade.openstack_cloud(cloud=CLOUDNAME)
-compute = os_client_config.make_client("compute", cloud=CLOUDNAME)
+nova = os_client_config.make_client("compute", cloud=CLOUDNAME)
+cinder = os_client_config.make_client("volume", cloud=CLOUDNAME)
 
 result = cloud.get_domain(name_or_id=DOMAINNAME)
 domain_id = result.id
@@ -86,7 +87,89 @@ utc = pytz.UTC
 now = utc.localize(datetime.now())
 
 
-# logic
+# volumes
+
+# result = cloud.search_volumes(filters={"project": project_id})
+result = cinder.volumes.list(search_opts={"project_id": project_id})
+
+for volume in result:
+    delete_volume = False
+    created_at = parse(volume.created_at)
+    created_at = pytz.utc.localize(created_at)
+    lifetime = now - created_at
+
+    if not "expiration_datetime" in volume.metadata.keys():
+        expiration_datetime = now + EXPIRATION_TIME
+        try:
+            cinder.volumes.set_metadata(volume, {"expiration_datetime": str(expiration_datetime)})
+            print("set expiration_datetime %s for new volume %s" % (expiration_datetime, volume.id))
+        except:
+            pass
+    else:
+        try:
+            expiration_datetime = parse(volume.metadata["expiration_datetime"])
+        except:
+            expiration_datetime = created_at + EXPIRATION_TIME
+            print("set correct expiration_datetime %s for volume %s" % (expiration_datetime, volume.id))
+            cinder.volumes.set_metadata(volume, {"expiration_datetime": str(expiration_datetime)})
+
+        try:
+            expiration_datetime - REMINDER_TIME < now
+        except:
+            expiration_datetime = pytz.utc.localize(expiration_datetime)
+
+    if (MAILGUNKEY and
+        expiration_datetime - REMINDER_TIME < now and
+        (("expiration_reminder" in volume.metadata.keys() and volume.metadata["expiration_reminder"] not in TRUE) or "expiration_reminder" not in volume.metadata.keys())):
+        user = cloud.get_user(name_or_id=volume.user_id, domain_id=domain_id)
+        print("reminder for volume %s is sent to %s (%s)" % (volume.id, user.email, lifetime))
+        context = {
+            "type": "volume",
+            "name":  volume.name,
+            "id":  volume.id,
+            "lifetime": lifetime,
+            "expiration_datetime": expiration_datetime.strftime("%Y-%m-%d %H:%M"),
+            "next_expiration_datetime": (expiration_datetime + NEXT_EXPIRATION_TIME).strftime("%Y-%m-%d %H:%M"),
+            "project": PROJECTNAME,
+            "max_expiration_time": str(MAX_EXPIRATION_TIME).split(" ", 1)[0],
+            "reminder_time": str(REMINDER_TIME).split(" ", 1)[0],
+            "next_expiration_time": str(NEXT_EXPIRATION_TIME).split(" ", 1)[0]
+        }
+        payload = yaml.load(render(EXPIRATION_TEMPLATE, context))
+        send_mail(user.email, payload)
+        cinder.volumes.set_metadata(volume, {"expiration_reminder": str(True)})
+
+    elif expiration_datetime < now:
+        print("volume %s has reached the desired lifetime (%s)" % (volume.id, lifetime))
+        delete_volume = True
+
+    elif created_at + MAX_EXPIRATION_TIME < now:
+        print("volume %s has reached the maximum possible lifetime (%s)" % (volume.id, lifetime))
+        delete_volume = True
+
+    else:
+        print("volume %s is within the possible lifetime: %s (%s remaining)" % (volume.id, expiration_datetime, expiration_datetime - now))
+
+    if delete_volume:
+        print("volume %s is deleted" % volume.id)
+        cinder.volumes.force_delete(volume)
+
+        if MAILGUNKEY:
+            user = cloud.get_user(name_or_id=volume.user_id, domain_id=domain_id)
+            print("information about deletion of volume %s is sent to %s (%s)" % (volume.id, user.email, lifetime))
+            context = {
+                "type": "volume",
+                "name":  volume.name,
+                "id":  volume.id,
+                "lifetime": lifetime,
+                "expiration_datetime": expiration_datetime.strftime("%Y-%m-%d %H:%M"),
+                "project": PROJECTNAME
+            }
+            payload = yaml.load(render(DELETION_TEMPLATE, context))
+            send_mail(user.email, payload)
+
+
+# instances
 
 result = cloud.search_servers(filters={"project_id": project_id}, all_projects=True)
 
@@ -99,7 +182,7 @@ for server in result:
     if not "expiration_datetime" in server.metadata.keys():
         expiration_datetime = now + EXPIRATION_TIME
         try:
-            compute.servers.set_meta_item(server, "expiration_datetime", str(expiration_datetime))
+            nova.servers.set_meta_item(server, "expiration_datetime", str(expiration_datetime))
             print("set expiration_datetime %s for new instance %s" % (expiration_datetime, server.id))
         except:
             pass
@@ -109,7 +192,7 @@ for server in result:
         except:
             expiration_datetime = created_at + EXPIRATION_TIME
             print("set correct expiration_datetime %s for instance %s" % (expiration_datetime, server.id))
-            compute.servers.set_meta_item(server, "expiration_datetime", str(expiration_datetime))
+            nova.servers.set_meta_item(server, "expiration_datetime", str(expiration_datetime))
 
         try:
             expiration_datetime - REMINDER_TIME < now
@@ -118,7 +201,7 @@ for server in result:
 
     if (MAILGUNKEY and
         expiration_datetime - REMINDER_TIME < now and
-        ("expiration_reminder" in server.metadata.keys() and server.metadata.expiration_reminder not in TRUE)):
+        (("expiration_reminder" in server.metadata.keys() and server.metadata.expiration_reminder not in TRUE)) or "expiration_reminder" in server.metadata.keys()):
         user = cloud.get_user(name_or_id=server.user_id, domain_id=domain_id)
         print("reminder for instance %s is sent to %s (%s)" % (server.id, user.email, lifetime))
         context = {
@@ -135,7 +218,7 @@ for server in result:
         }
         payload = yaml.load(render(EXPIRATION_TEMPLATE, context))
         send_mail(user.email, payload)
-        compute.servers.set_meta_item(server, "expiration_reminder", str(True))
+        nova.servers.set_meta_item(server, "expiration_reminder", str(True))
 
     elif expiration_datetime < now:
         print("instance %s has reached the desired lifetime (%s)" % (server.id, lifetime))
@@ -150,12 +233,12 @@ for server in result:
 
     if delete_server:
         print("instance %s is deleted" % server.id)
-        compute.servers.unlock(server)
-        compute.servers.force_delete(server)
+        nova.servers.unlock(server)
+        nova.servers.force_delete(server)
 
         if MAILGUNKEY:
             user = cloud.get_user(name_or_id=server.user_id, domain_id=domain_id)
-            print("information about deletion of %s is sent to %s (%s)" % (server.id, user.email, lifetime))
+            print("information about deletion of instance %s is sent to %s (%s)" % (server.id, user.email, lifetime))
             context = {
                 "type": "instance",
                 "name":  server.name,
