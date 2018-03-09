@@ -74,8 +74,10 @@ def send_mail(to, payload):
 # preparations
 
 cloud = shade.openstack_cloud(cloud=CLOUDNAME)
-nova = os_client_config.make_client("compute", cloud=CLOUDNAME)
+
 cinder = os_client_config.make_client("volume", cloud=CLOUDNAME)
+glance = os_client_config.make_client("image", cloud=CLOUDNAME)
+nova = os_client_config.make_client("compute", cloud=CLOUDNAME)
 
 result = cloud.get_domain(name_or_id=DOMAINNAME)
 domain_id = result.id
@@ -101,6 +103,51 @@ for floating_ip in result:
     if delete_floating_ip:
         print("floating ip %s is deleted" % floating_ip.id)
         cloud.delete_floating_ip(floating_ip.id)
+
+
+# images
+
+result = cloud.search_images(filters={"owner": project_id})
+
+for image in result:
+    delete_image = False
+    created_at = parse(image.created_at)
+    lifetime = now - created_at
+
+    if not "expiration_datetime" in image.metadata.keys():
+        expiration_datetime = now + EXPIRATION_TIME
+        try:
+            glance.images.update(image.id, **{"expiration_datetime": str(expiration_datetime)})
+            print("set expiration_datetime %s for new image %s" % (expiration_datetime, image.id))
+        except:
+            pass
+    else:
+        try:
+            expiration_datetime = parse(image.metadata["expiration_datetime"])
+        except:
+            expiration_datetime = created_at + EXPIRATION_TIME
+            print("set correct expiration_datetime %s for image %s" % (expiration_datetime, image.id))
+            glance.images.update(image.id, **{"expiration_datetime": str(expiration_datetime)})
+
+        try:
+            expiration_datetime - REMINDER_TIME < now
+        except:
+            expiration_datetime = pytz.utc.localize(expiration_datetime)
+
+    if expiration_datetime < now:
+        print("image %s has reached the desired lifetime (%s)" % (image.id, lifetime))
+        delete_image = True
+
+    elif created_at + MAX_EXPIRATION_TIME < now:
+        print("image %s has reached the maximum possible lifetime (%s)" % (image.id, lifetime))
+        delete_image = True
+
+    else:
+        print("image %s is within the possible lifetime: %s (%s remaining)" % (image.id, expiration_datetime, expiration_datetime - now))
+
+    if delete_image:
+        print("image %s is deleted" % image.id)
+        cloud.delete_image(image)
 
 
 # volumes
