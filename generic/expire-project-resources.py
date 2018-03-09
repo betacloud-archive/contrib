@@ -145,17 +145,19 @@ for server in result:
 
     if delete_server:
         print("instance %s is deleted" % server.id)
-        # FIXME(berendt): enable instance deletion
+        compute.servers.unlock(server)
+        compute.servers.force_delete(server)
 
-        user = cloud.get_user(name_or_id=server.user_id, domain_id=domain_id)
-        print("information about deletion of %s is sent to %s (%s)" % (server.id, user.email, lifetime))
-        context = {
-            "type": "instance",
-            "name":  server.name,
-            "id":  server.id,
-            "lifetime": lifetime,
-            "expiration_datetime": expiration_datetime.strftime("%Y-%m-%d %H:%M"),
-            "project": PROJECTNAME
-        }
-        payload = yaml.load(render(DELETION_TEMPLATE, context))
-        send_mail(user.email, payload)
+        if MAILGUNKEY:
+            user = cloud.get_user(name_or_id=server.user_id, domain_id=domain_id)
+            print("information about deletion of %s is sent to %s (%s)" % (server.id, user.email, lifetime))
+            context = {
+                "type": "instance",
+                "name":  server.name,
+                "id":  server.id,
+                "lifetime": lifetime,
+                "expiration_datetime": expiration_datetime.strftime("%Y-%m-%d %H:%M"),
+                "project": PROJECTNAME
+            }
+            payload = yaml.load(render(DELETION_TEMPLATE, context))
+            send_mail(user.email, payload)
