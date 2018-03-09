@@ -86,6 +86,22 @@ project_id = result.id
 utc = pytz.UTC
 now = utc.localize(datetime.now())
 
+# floating ips
+
+result = cloud.list_floating_ips(filters={"project_id": project_id})
+for floating_ip in result:
+    delete_floating_ip = False
+    created_at = parse(floating_ip.created_at)
+    lifetime = now - created_at
+
+    if created_at + MAX_EXPIRATION_TIME < now and floating_ip.status == "DOWN":
+        print("floating ip %s has reached the maximum possible lifetime and is not assigned (%s)" % (floating_ip.id, lifetime))
+        delete_floating_ip = True
+
+    if delete_floating_ip:
+        print("floating ip %s is deleted" % floating_ip.id)
+        cloud.delete_floating_ip(floating_ip.id)
+
 
 # volumes
 
