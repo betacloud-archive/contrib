@@ -11,3 +11,5 @@ tabulate
 python-dateutil
 jinja2
 requests
+sqlalchemy
+pymysql
