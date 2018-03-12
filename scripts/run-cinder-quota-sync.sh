@@ -36,4 +36,6 @@ else
 
 fi
 
-python cinder/quota-sync.py
+for project in $(python cinder/quota-sync.py --list-projects); do
+    python cinder/quota-sync.py --sync --project-id $project
+done

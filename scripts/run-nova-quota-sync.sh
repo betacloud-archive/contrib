@@ -36,4 +36,4 @@ else
 
 fi
 
-python nova/quota-sync.py
+python nova/quota-sync.py --auto-sync
