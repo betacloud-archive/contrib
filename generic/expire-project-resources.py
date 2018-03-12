@@ -264,7 +264,7 @@ for server in result:
 
     if (MAILGUNKEY and
         expiration_datetime - REMINDER_TIME < now and
-        (("expiration_reminder" in server.metadata.keys() and server.metadata.expiration_reminder not in TRUE)) or "expiration_reminder" in server.metadata.keys()):
+        (("expiration_reminder" in server.metadata.keys() and server.metadata.expiration_reminder not in TRUE)) or "expiration_reminder" not in server.metadata.keys()):
         user = cloud.get_user(name_or_id=server.user_id, domain_id=domain_id)
         print("reminder for instance %s is sent to %s (%s)" % (server.id, user.email, lifetime))
         context = {
