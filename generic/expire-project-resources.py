@@ -165,7 +165,7 @@ for volume in result:
         expiration_datetime = now + EXPIRATION_TIME
         try:
             cinder.volumes.set_metadata(volume, {"expiration_datetime": str(expiration_datetime)})
-            print("set expiration_datetime %s for new volume %s" % (expiration_datetime, volume.id))
+            print("set expiration_datetime %s for volume %s" % (expiration_datetime, volume.id))
         except:
             pass
     else:
@@ -182,6 +182,7 @@ for volume in result:
             expiration_datetime = pytz.utc.localize(expiration_datetime)
 
     if "expiration_reminder" not in volume.metadata.keys():
+        print("set expiration_reminder for volume %s" % volume.id)
         cinder.volumes.set_metadata(volume, {"expiration_reminder": str(False)})
     elif (MAILGUNKEY and
           expiration_datetime - REMINDER_TIME < now and
@@ -248,7 +249,7 @@ for server in result:
         expiration_datetime = now + EXPIRATION_TIME
         try:
             nova.servers.set_meta_item(server, "expiration_datetime", str(expiration_datetime))
-            print("set expiration_datetime %s for new instance %s" % (expiration_datetime, server.id))
+            print("set expiration_datetime %s for instance %s" % (expiration_datetime, server.id))
         except:
             pass
     else:
@@ -265,6 +266,7 @@ for server in result:
             expiration_datetime = pytz.utc.localize(expiration_datetime)
 
     if "expiration_reminder" not in server.metadata.keys():
+        print("set expiration_reminder for instance %s" % server.id)
         nova.servers.set_meta_item(server, "expiration_reminder", str(False))
     elif (MAILGUNKEY and
           expiration_datetime - REMINDER_TIME < now and
