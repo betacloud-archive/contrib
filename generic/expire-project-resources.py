@@ -181,9 +181,11 @@ for volume in result:
         except:
             expiration_datetime = pytz.utc.localize(expiration_datetime)
 
-    if (MAILGUNKEY and
-        expiration_datetime - REMINDER_TIME < now and
-        (("expiration_reminder" in volume.metadata.keys() and volume.metadata["expiration_reminder"] not in TRUE) or "expiration_reminder" not in volume.metadata.keys())):
+    if "expiration_reminder" not in volume.metadata.keys():
+        cinder.volumes.set_metadata(volume, {"expiration_reminder": str(False)})
+    elif (MAILGUNKEY and
+          expiration_datetime - REMINDER_TIME < now and
+          ("expiration_reminder" in volume.metadata.keys() and volume.metadata["expiration_reminder"] not in TRUE)):
         user = cloud.get_user(name_or_id=volume.user_id, domain_id=domain_id)
         print("reminder for volume %s is sent to %s (%s)" % (volume.id, user.email, lifetime))
         context = {
@@ -262,9 +264,11 @@ for server in result:
         except:
             expiration_datetime = pytz.utc.localize(expiration_datetime)
 
-    if (MAILGUNKEY and
-        expiration_datetime - REMINDER_TIME < now and
-        (("expiration_reminder" in server.metadata.keys() and server.metadata.expiration_reminder not in TRUE)) or "expiration_reminder" not in server.metadata.keys()):
+    if "expiration_reminder" not in server.metadata.keys():
+        nova.servers.set_meta_item(server, "expiration_reminder", str(False))
+    elif (MAILGUNKEY and
+          expiration_datetime - REMINDER_TIME < now and
+          ("expiration_reminder" in server.metadata.keys() and server.metadata.expiration_reminder not in TRUE)):
         user = cloud.get_user(name_or_id=server.user_id, domain_id=domain_id)
         print("reminder for instance %s is sent to %s (%s)" % (server.id, user.email, lifetime))
         context = {
