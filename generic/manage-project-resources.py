@@ -20,8 +20,12 @@ import os_client_config
 import shade
 import yaml
 
-CLOUDNAME = 'service'
+CLOUDNAME = os.environ.get("CLOUDNAME", "service")
 
+PROJECT = os.environ.get("PROJECT", None)
+if not PROJECT:
+    print("PROJECT not specified")
+PROJECT = PROJECT.rstrip()
 
 def check_quota(project, cloud):
 
@@ -113,12 +117,12 @@ cloud = shade.operator_cloud(cloud=CLOUDNAME)
 with open("etc/quotaclasses.yml", "r") as fp:
     quotaclasses = yaml.load(fp)
 
-project = cloud.get_project(os.environ.get("PROJECT"))
+project = cloud.get_project(PROJECT)
 if not project:
-    print("project %s does not exist" % os.environ.get("PROJECT"))
+    print("project %s does not exist" % PROJECT)
     sys.exit(1)
 
-print("prepare project %s" % os.environ.get("PROJECT"))
+print("prepare project %s" % PROJECT)
 
 if "quotaclass" not in project:
     print("quotaclass for project %s not set" % project.name)
