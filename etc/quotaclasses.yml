@@ -79,7 +79,7 @@ basic:
   compute:
     cores: 4
     fixed_ips: 10
-    floating_ips: 2
+    floating_ips: 4
     injected_file_content_bytes: 10240
     injected_file_path_bytes: 255
     injected_files: 5
@@ -96,7 +96,7 @@ basic:
     firewall: 0
     firewall_policy: 0
     firewall_rule: 0
-    floatingip: 2
+    floatingip: 4
     network: 1
     port: 20
     rbac_policy: 0
