@@ -33,13 +33,9 @@ def check_quota(project, cloud):
     print "check network quota for %s" % project.name
     quotanetwork = cloud.get_network_quotas(project.id)
     for key in quotaclasses[project.quotaclass]["network"]:
-        if key in ["security_group_rule"]:
-            tmultiplier = 1
-        else:
-            tmultiplier = multiplier
-        if quotaclasses[project.quotaclass]["network"][key] * tmultiplier != quotanetwork[key]:
-            print "%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key] * tmultiplier, quotanetwork[key])
-            cloud.set_network_quotas(project.id, **{key: quotaclasses[project.quotaclass]["network"][key] * tmultiplier})
+        if quotaclasses[project.quotaclass]["network"][key] * multiplier != quotanetwork[key]:
+            print "%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key] * multiplier, quotanetwork[key])
+            cloud.set_network_quotas(project.id, **{key: quotaclasses[project.quotaclass]["network"][key] * multiplier})
 
     print "check compute quota for %s" % project.name
     quotacompute = cloud.get_compute_quotas(project.id)
