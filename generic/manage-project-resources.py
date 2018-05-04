@@ -87,15 +87,14 @@ def create_network_resources(project, domain):
             name=router_name,
             ext_gateway_net_id=public_network_id,
             enable_snat=True,
-            project_id=project.id,
-            availability_zone_hints=["north-1"]
+            project_id=project.id
         )
         attach = True
 
     net = cloud.get_network(net_name)
     if not net:
         print "create network for %s" % project.name
-        net = cloud.create_network(net_name, project_id=project.id, availability_zone_hints=["south-1"])
+        net = cloud.create_network(net_name, project_id=project.id)
 
     subnet = cloud.get_subnet(subnet_name)
     if not subnet:
