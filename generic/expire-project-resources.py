@@ -40,10 +40,10 @@ MAILGUNFROM = os.environ.get("MAILGUNFROM", "Betacloud Sag Wagon <noreply@betacl
 
 DELETION_TEMPLATE = os.environ.get("DELETION_TEMPLATE", "etc/expiration-deletion.yml.j2")
 EXPIRATION_TEMPLATE = os.environ.get("EXPIRATION_TEMPLATE", "etc/expiration-reminder.yml.j2")
-EXPIRATION_TIME = timedelta(hours=os.environ.get("EXPIRATION_TIME", 72))
-MAX_EXPIRATION_TIME = timedelta(hours=os.environ.get("MAX_EXPIRATION_TIME", 144))
+EXPIRATION_TIME = timedelta(hours=os.environ.get("EXPIRATION_TIME", 168))
+MAX_EXPIRATION_TIME = timedelta(hours=os.environ.get("MAX_EXPIRATION_TIME", 336))
 
-REMINDER_TIME = timedelta(hours=os.environ.get("REMINDER_TIME", 24))
+REMINDER_TIME = timedelta(hours=os.environ.get("REMINDER_TIME", 72))
 NEXT_EXPIRATION_TIME = timedelta(hours=os.environ.get("NEXT_EXPIRATION_TIME", 24))
 
 
