@@ -49,8 +49,8 @@ NEXT_EXPIRATION_TIME = timedelta(hours=os.environ.get("NEXT_EXPIRATION_TIME", 24
 
 # helper
 
-TRUE = ["Yes", "yes", "True", "true"]
-FALSE = ["No", "no", "False", "false"]
+TRUE = ["Yes", "yes", "YES", "True", "true", "TRUE"]
+FALSE = ["No", "no", "NO", "False", "false", "FALSE"]
 
 # http://matthiaseisen.com/pp/patterns/p0198/
 def render(tpl_path, context):
