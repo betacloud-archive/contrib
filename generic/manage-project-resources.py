@@ -34,12 +34,27 @@ def check_quota(project, cloud):
     else:
         multiplier = 1
 
+    if "quotamultiplier_storage" in project:
+        multiplier_storage = int(project.quotamultiplier_storage)
+    else:
+        multiplier_storage = multiplier
+
+    if "quotamultiplier_compute" in project:
+        multiplier_compute = int(project.quotamultiplier_compute)
+    else:
+        multiplier_compute = multiplier
+
+    if "quotamultiplier_network" in project:
+        multiplier_network = int(project.quotamultiplier_network)
+    else:
+        multiplier_network = multiplier
+
     print "check network quota for %s" % project.name
     quotanetwork = cloud.get_network_quotas(project.id)
     for key in quotaclasses[project.quotaclass]["network"]:
-        if quotaclasses[project.quotaclass]["network"][key] * multiplier != quotanetwork[key]:
-            print "%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key] * multiplier, quotanetwork[key])
-            cloud.set_network_quotas(project.id, **{key: quotaclasses[project.quotaclass]["network"][key] * multiplier})
+        if quotaclasses[project.quotaclass]["network"][key] * multiplier_network != quotanetwork[key]:
+            print "%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key] * multiplier_network, quotanetwork[key])
+            cloud.set_network_quotas(project.id, **{key: quotaclasses[project.quotaclass]["network"][key] * multiplier_network})
 
     print "check compute quota for %s" % project.name
     quotacompute = cloud.get_compute_quotas(project.id)
@@ -47,7 +62,7 @@ def check_quota(project, cloud):
         if key in ["injected_file_content_bytes", "metadata_items", "injected_file_path_bytes"]:
             tmultiplier = 1
         else:
-            tmultiplier = multiplier
+            tmultiplier = multiplier_compute
         if quotaclasses[project.quotaclass]["compute"][key] * tmultiplier != quotacompute[key]:
             print "%s [ compute / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["compute"][key] * tmultiplier, quotacompute[key])
             cloud.set_compute_quotas(project.id, **{key: quotaclasses[project.quotaclass]["compute"][key] * tmultiplier})
@@ -58,7 +73,7 @@ def check_quota(project, cloud):
         if key in ["per_volume_gigabytes"]:
             tmultiplier = 1
         else:
-            tmultiplier = multiplier
+            tmultiplier = multiplier_storage
         if quotaclasses[project.quotaclass]["volume"][key] * tmultiplier != quotavolume[key]:
             print "%s [ volume %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["volume"][key] * tmultiplier, quotavolume[key])
             cloud.set_volume_quotas(project.id, **{key: quotaclasses[project.quotaclass]["volume"][key] * tmultiplier})
