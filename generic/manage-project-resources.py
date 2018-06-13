@@ -81,6 +81,19 @@ def check_quota(project, cloud):
 
 def create_network_resources(project, domain):
 
+    if "quotamultiplier" in project:
+        multiplier = int(project.quotamultiplier)
+    else:
+        multiplier = 1
+
+    if "quotamultiplier_network" in project:
+        multiplier_network = int(project.quotamultiplier_network)
+    else:
+        multiplier_network = multiplier
+
+    if not multiplier_network:
+        return
+
     domain_name = domain.name.lower()
     project_name = project.name.lower()
     router_name = "router-to-%s-public-%s" % (domain_name, project_name)
