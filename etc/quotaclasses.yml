@@ -21,6 +21,9 @@ default:
     firewall_policy: 0
     firewall_rule: 0
     floatingip: 0
+    l7_policies: 0
+    listeners: 0
+    load_balancers: 0
     network: 0
     port: 0
     rbac_policy: 0
@@ -59,6 +62,9 @@ service:
     firewall_policy: 0
     firewall_rule: 0
     floatingip: 0
+    l7_policies: 0
+    listeners: 0
+    load_balancers: 0
     network: 256
     port: 256
     rbac_policy: 1024
@@ -97,6 +103,9 @@ basic:
     firewall_policy: 0
     firewall_rule: 0
     floatingip: 4
+    l7_policies: 5
+    listeners: 1
+    load_balancers: 1
     network: 1
     port: 20
     rbac_policy: 0
