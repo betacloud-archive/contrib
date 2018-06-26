@@ -26,6 +26,7 @@ default:
     listener: 0
     loadbalancer: 0
     network: 0
+    pool: 0
     port: 0
     rbac_policy: 0
     router: 0
@@ -68,6 +69,7 @@ service:
     listener: 0
     loadbalancer: 0
     network: 256
+    pool: 0
     port: 256
     rbac_policy: 1024
     router: 256
@@ -110,6 +112,7 @@ basic:
     listener: 1
     loadbalancer: 1
     network: 1
+    pool: 1
     port: 20
     rbac_policy: 0
     router: 1
