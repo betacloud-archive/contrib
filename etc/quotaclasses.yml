@@ -25,6 +25,7 @@ default:
     l7policy: 0
     listener: 0
     loadbalancer: 0
+    member: 0
     network: 0
     pool: 0
     port: 0
@@ -68,6 +69,7 @@ service:
     l7policy: 0
     listener: 0
     loadbalancer: 0
+    member: 0
     network: 256
     pool: 0
     port: 256
@@ -111,6 +113,7 @@ basic:
     l7policy: 5
     listener: 1
     loadbalancer: 1
+    member: 5
     network: 1
     pool: 1
     port: 20
