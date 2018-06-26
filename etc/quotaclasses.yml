@@ -21,6 +21,7 @@ default:
     firewall_policy: 0
     firewall_rule: 0
     floatingip: 0
+    healthmonitor: 0
     l7policy: 0
     listener: 0
     loadbalancer: 0
@@ -62,6 +63,7 @@ service:
     firewall_policy: 0
     firewall_rule: 0
     floatingip: 0
+    healthmonitor: 0
     l7policy: 0
     listener: 0
     loadbalancer: 0
@@ -103,6 +105,7 @@ basic:
     firewall_policy: 0
     firewall_rule: 0
     floatingip: 4
+    healthmonitor: 5
     l7policy: 5
     listener: 1
     loadbalancer: 1
