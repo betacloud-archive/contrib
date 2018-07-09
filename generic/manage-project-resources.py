@@ -21,12 +21,28 @@ import os_client_config
 import shade
 import yaml
 
+BASE_ENDPOINT_GROUPS = {
+    "has_cinder": ["cinder", "cinderv2", "cinderv3"],
+    "has_glance": ["glance"],
+    "has_gnocchi": ["gnocchi"],
+    "has_heat": ["heat", "heat-cfn"],
+    "has_keystone": ["keystone"],
+    "has_magnum": ["magnum"],
+    "has_mistral": ["mistral"],
+    "has_neutron": ["neutron"],
+    "has_nova": ["nova", "nova_legacy", "placement"],
+    "has_panko": ["panko"]
+}
+
 CLOUDNAME = os.environ.get("CLOUDNAME", "service")
 
 PROJECT = os.environ.get("PROJECT", None)
 if not PROJECT:
     print("PROJECT not specified")
 PROJECT = PROJECT.rstrip()
+
+def check_endpoint_groups(project):
+    pass
 
 def check_quota(project, cloud):
 
@@ -182,3 +198,5 @@ else:
         if project.quotaclass not in ["default", "service"]:
             domain = cloud.get_domain(project.domain_id)
             create_network_resources(project, domain)
+
+    check_endpoint_groups(project)
