@@ -194,6 +194,10 @@ if not project:
     print("project %s does not exist" % PROJECT)
     sys.exit(1)
 
+if project.domain_id == "default":
+    print("projects in the default domain are not managed")
+    sys.exit(1)
+
 # prepare project
 
 print("prepare project %s (%s)" % (project.name, project.id))
