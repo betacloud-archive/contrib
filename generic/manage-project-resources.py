@@ -196,7 +196,7 @@ if not project:
 
 # prepare project
 
-print("prepare project %s" % PROJECT)
+print("prepare project %s (%s)" % (project.name, project.id))
 
 check_endpoint_groups(project)
 
