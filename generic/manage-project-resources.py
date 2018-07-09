@@ -39,10 +39,13 @@ CLOUDNAME = os.environ.get("CLOUDNAME", "service")
 PROJECT = os.environ.get("PROJECT", None)
 if not PROJECT:
     print("PROJECT not specified")
+    sys.exit(1)
 PROJECT = PROJECT.rstrip()
+
 
 def check_endpoint_groups(project):
     pass
+
 
 def check_quota(project, cloud):
 
@@ -174,29 +177,36 @@ def create_network_with_router(project, net_name, subnet_name, router_name, publ
         cloud.add_router_interface(router, subnet_id=subnet.id)
 
 
-cloud = shade.operator_cloud(cloud=CLOUDNAME)
-neutron = os_client_config.make_client("network", cloud=CLOUDNAME)
+# load configurations
 
 with open("etc/quotaclasses.yml", "r") as fp:
     quotaclasses = yaml.load(fp)
+
+# get connections
+
+cloud = shade.operator_cloud(cloud=CLOUDNAME)
+neutron = os_client_config.make_client("network", cloud=CLOUDNAME)
+
+# check existence of project
 
 project = cloud.get_project(PROJECT)
 if not project:
     print("project %s does not exist" % PROJECT)
     sys.exit(1)
 
+# prepare project
+
 print("prepare project %s" % PROJECT)
+
+check_endpoint_groups(project)
 
 if "quotaclass" not in project:
     print("quotaclass for project %s not set" % project.name)
+elif project.quotaclass not in quotaclasses:
+    print("quotaclass %s for project %s not defined" % (project.quotaclass, project.name))
 else:
-    if project.quotaclass not in quotaclasses:
-        print("quotaclass %s for project %s not defined" % (project.quotaclass, project.name))
-    else:
-        check_quota(project, cloud)
+    check_quota(project, cloud)
 
-        if project.quotaclass not in ["default", "service"]:
-            domain = cloud.get_domain(project.domain_id)
-            create_network_resources(project, domain)
-
-    check_endpoint_groups(project)
+    if project.quotaclass not in ["default", "service"]:
+        domain = cloud.get_domain(project.domain_id)
+        create_network_resources(project, domain)
