@@ -16,6 +16,7 @@ import os
 import sys
 import time
 
+import neutronclient
 import os_client_config
 import shade
 import yaml
@@ -49,14 +50,14 @@ def check_quota(project, cloud):
     else:
         multiplier_network = multiplier
 
-    print "check network quota for %s" % project.name
+    print("check network quota for %s" % project.name)
     quotanetwork = cloud.get_network_quotas(project.id)
     for key in quotaclasses[project.quotaclass]["network"]:
         if quotaclasses[project.quotaclass]["network"][key] * multiplier_network != quotanetwork[key]:
-            print "%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key] * multiplier_network, quotanetwork[key])
+            print("%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key] * multiplier_network, quotanetwork[key]))
             cloud.set_network_quotas(project.id, **{key: quotaclasses[project.quotaclass]["network"][key] * multiplier_network})
 
-    print "check compute quota for %s" % project.name
+    print("check compute quota for %s" % project.name)
     quotacompute = cloud.get_compute_quotas(project.id)
     for key in quotaclasses[project.quotaclass]["compute"]:
         if key in ["injected_file_content_bytes", "metadata_items", "injected_file_path_bytes"]:
@@ -64,10 +65,10 @@ def check_quota(project, cloud):
         else:
             tmultiplier = multiplier_compute
         if quotaclasses[project.quotaclass]["compute"][key] * tmultiplier != quotacompute[key]:
-            print "%s [ compute / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["compute"][key] * tmultiplier, quotacompute[key])
+            print("%s [ compute / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["compute"][key] * tmultiplier, quotacompute[key]))
             cloud.set_compute_quotas(project.id, **{key: quotaclasses[project.quotaclass]["compute"][key] * tmultiplier})
 
-    print "check volume quota for %s" % project.name
+    print("check volume quota for %s" % project.name)
     quotavolume = cloud.get_volume_quotas(project.id)
     for key in quotaclasses[project.quotaclass]["volume"]:
         if key in ["per_volume_gigabytes"]:
@@ -75,7 +76,7 @@ def check_quota(project, cloud):
         else:
             tmultiplier = multiplier_storage
         if quotaclasses[project.quotaclass]["volume"][key] * tmultiplier != quotavolume[key]:
-            print "%s [ volume %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["volume"][key] * tmultiplier, quotavolume[key])
+            print("%s [ volume %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["volume"][key] * tmultiplier, quotavolume[key]))
             cloud.set_volume_quotas(project.id, **{key: quotaclasses[project.quotaclass]["volume"][key] * tmultiplier})
 
 
@@ -96,21 +97,38 @@ def create_network_resources(project, domain):
 
     domain_name = domain.name.lower()
     project_name = project.name.lower()
-    router_name = "router-to-%s-public-%s" % (domain_name, project_name)
-    net_name = "net-to-%s-public-%s" % (domain_name, project_name)
-    subnet_name = "subnet-to-%s-public-%s" % (domain_name, project_name)
 
-    if domain_name == "default":
-        public_net_name = "public"
-    else:
-        public_net_name = "%s-public" % domain_name
+    if "has_public_network" in project and project.has_public_network.lower() in ["true", "yes"]:
+        net_name = "net-to-public-%s" % project_name
+        router_name = "router-to-public-%s" % project_name
+        subnet_name = "subnet-to-public-%s" % project_name
+        create_network_with_router(project, net_name, subnet_name, router_name, "public")
+
+    if "domain_name" != "default" and "has_domain_network" in project and project.has_domain_network.lower() in ["true", "yes"]:
+        net_name = "net-to-%s-public-%s" % (domain_name, project_name)
+        router_name = "router-to-%s-public-%s" % (domain_name, project_name)
+        subnet_name = "subnet-to-%s-public-%s" % (domain_name, project_name)
+        create_network_with_router(project, net_name, subnet_name, router_name, "%s-public" % domain_name)
+
+
+def create_network_with_router(project, net_name, subnet_name, router_name, public_net_name):
+    try:
+        public_net = cloud.get_network(public_net_name)
+        neutron.create_rbac_policy({'rbac_policy': {
+            'target_tenant': project.id,
+            'action': 'access_as_external',
+            'object_type': 'network',
+            'object_id': public_net.id
+        }})
+    except neutronclient.common.exceptions.Conflict:
+        pass
 
     router = cloud.get_router(router_name)
     attach = False
 
     if not router:
         public_network_id = cloud.get_network(public_net_name).id
-        print "create router for %s" % project.name
+        print("create router for %s (%s)" % (project.name, public_net_name))
         router = cloud.create_router(
             name=router_name,
             ext_gateway_net_id=public_network_id,
@@ -121,12 +139,12 @@ def create_network_resources(project, domain):
 
     net = cloud.get_network(net_name)
     if not net:
-        print "create network for %s" % project.name
+        print("create network for %s (%s)" % (project.name, public_net_name))
         net = cloud.create_network(net_name, project_id=project.id)
 
     subnet = cloud.get_subnet(subnet_name)
     if not subnet:
-        print "create subnetwork for %s" % project.name
+        print("create subnetwork for %s (%s)" % (project.name, public_net_name))
         subnet = cloud.create_subnet(
             net.id,
             tenant_id=project.id,
@@ -141,6 +159,8 @@ def create_network_resources(project, domain):
 
 
 cloud = shade.operator_cloud(cloud=CLOUDNAME)
+neutron = os_client_config.make_client("network", cloud=CLOUDNAME)
+
 with open("etc/quotaclasses.yml", "r") as fp:
     quotaclasses = yaml.load(fp)
 
