@@ -2,6 +2,7 @@
 
 # source: https://raw.githubusercontent.com/cernops/cinder-quota-sync/master/cinder-quota-sync
 
+#
 # Copyright (c) 2017 CERN
 # All Rights Reserved.
 #
@@ -58,7 +59,7 @@ def yn_choice():
     yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
 
-    print("Do you want to sync? [Yes/No]")
+    print "Do you want to sync? [Yes/No]"
     while True:
         choice = raw_input().lower()
         if choice in yes:
@@ -73,7 +74,7 @@ def sync_quota_usages_project(meta, project_id, quota_usages_to_sync):
 
     """Sync the quota usages of a project from real usages"""
 
-    print("Syncing %s" % (project_id))
+    print "Syncing %s" % (project_id)
     now = datetime.datetime.utcnow()
     quota_usages_t = Table('quota_usages', meta, autoload=True)
     for resource, quota in quota_usages_to_sync.iteritems():
@@ -167,7 +168,6 @@ def makeConnection(db_url):
     return tpl
 
 
-
 def parse_cmdline_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--nosync",
@@ -177,10 +177,10 @@ def parse_cmdline_args():
                         action="store_true",
                         help="always sync resources (no interactive check)")
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--list-projects",
+    group.add_argument("--list_projects",
                        action="store_true",
                        help='get a list of all projects in the database')
-    group.add_argument("--project-id",
+    group.add_argument("--project_id",
                        type=str,
                        help="project to check")
     return parser.parse_args()
@@ -192,6 +192,7 @@ def main():
     except Exception as e:
         sys.stdout.write("Check command line arguments (%s)" % e.strerror)
 
+    # connect to the DB
     DB_DATABASE = os.environ.get("DB_DATABASE", "cinder")
     DB_HOST = os.environ.get("DB_HOST", "localhost")
     DB_PASSWORD = os.environ.get("DB_PASSWORD", "password")
@@ -213,12 +214,12 @@ def main():
     #
     if args.list_projects:
         for p in get_projects(cinder_metadata):
-            print(p)
+            print p
         sys.exit(0)
 
     # check a single project
     #
-    print("Checking " + args.project_id + " ...")
+    print "Checking " + args.project_id + " ..."
 
     # get the quota usage of a project
     quota_usages = {}
@@ -233,15 +234,15 @@ def main():
     for (_, size, type_id) in get_volume_usages_project(cinder_metadata,
                                                         args.project_id):
         real_usages["volumes"] += 1
-        real_usages["volumes_" + volume_types[type_id]] = real_usages.get("volumes_" + volume_types[type_id], 0) + 1
+        real_usages["volumes_" + volume_types[type_id]] += 1
         real_usages["gigabytes"] += size
-        real_usages["gigabytes_" + volume_types[type_id]] = real_usages.get("gigabytes_" + volume_types[type_id], 0) + size
+        real_usages["gigabytes_" + volume_types[type_id]] += size
     for (_, size, type_id) in get_snapshot_usages_project(cinder_metadata,
                                                           args.project_id):
         real_usages["snapshots"] += 1
-        real_usages["snapshots_" + volume_types[type_id]] = real_usages.get("snapshots_" + volume_types[type_id], 0) + 1
+        real_usages["snapshots_" + volume_types[type_id]] += 1
         real_usages["gigabytes"] += size
-        real_usages["gigabytes_" + volume_types[type_id]] = real_usages.get("gigabytes_" + volume_types[type_id], 0) + size
+        real_usages["gigabytes_" + volume_types[type_id]] += size
 
     # prepare the output
     ptable = PrettyTable(["Project ID", "Resource", "Quota -> Real",
@@ -266,7 +267,7 @@ def main():
             pass
 
     if len(quota_usages):
-        print(ptable)
+        print ptable
 
     # sync the quota with the real usage
     if quota_usages_to_sync and not args.nosync and (args.sync or yn_choice()):
