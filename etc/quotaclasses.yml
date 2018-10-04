@@ -10,7 +10,6 @@ default:
     instances: 0
     key_pairs: 0
     metadata_items: 128
-    networks: 0
     ram: 0
     security_group_rules: 0
     security_groups: 0
@@ -54,7 +53,6 @@ service:
     instances: 0
     key_pairs: 0
     metadata_items: 128
-    networks: 0
     ram: 0
     security_group_rules: 0
     security_groups: 0
@@ -98,7 +96,6 @@ basic:
     instances: 4
     key_pairs: 4
     metadata_items: 128
-    networks: 1
     ram: 8192
     security_group_rules: 20
     security_groups: 5
