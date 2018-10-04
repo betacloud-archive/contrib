@@ -127,6 +127,6 @@ basic:
     backup_gigabytes: 0
     backups: 0
     gigabytes: 20
-    per_volume_gigabytes: 50
+    per_volume_gigabytes: 200
     snapshots: 4
     volumes: 4
