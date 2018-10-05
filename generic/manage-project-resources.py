@@ -120,15 +120,17 @@ def create_network_resources(project, domain):
     domain_name = domain.name.lower()
     project_name = project.name.lower()
 
-    logging.info("create network resources for %s" % project.name)
+    logging.info("check network resources for %s" % project.name)
 
     if "has_public_network" in project and project.has_public_network.lower() in ["true", "True", "yes", "Yes"]:
+        logging.info("prepare public network resources for %s" % project.name)
         net_name = "net-to-public-%s" % project_name
         router_name = "router-to-public-%s" % project_name
         subnet_name = "subnet-to-public-%s" % project_name
         create_network_with_router(project, net_name, subnet_name, router_name, "public")
 
     if "domain_name" != "default" and "has_domain_network" in project and project.has_domain_network.lower() in ["true", "True", "yes", "Yes"]:
+        logging.info("prepare domain network resources for %s" % project.name)
         net_name = "net-to-%s-public-%s" % (domain_name, project_name)
         router_name = "router-to-%s-public-%s" % (domain_name, project_name)
         subnet_name = "subnet-to-%s-public-%s" % (domain_name, project_name)
