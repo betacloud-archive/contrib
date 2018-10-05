@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
 import os
 import sys
 import time
@@ -20,6 +21,8 @@ import neutronclient
 import os_client_config
 import shade
 import yaml
+
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
 BASE_ENDPOINT_GROUPS = {
     "has_cinder": ["cinder", "cinderv2", "cinderv3"],
@@ -38,7 +41,7 @@ CLOUDNAME = os.environ.get("CLOUDNAME", "service")
 
 PROJECT = os.environ.get("PROJECT", None)
 if not PROJECT:
-    print("PROJECT not specified")
+    logging.error("PROJECT not specified")
     sys.exit(1)
 PROJECT = PROJECT.rstrip()
 
@@ -69,14 +72,14 @@ def check_quota(project, cloud):
     else:
         multiplier_network = multiplier
 
-    print("check network quota for %s" % project.name)
+    logging.info("check network quota for %s" % project.name)
     quotanetwork = cloud.get_network_quotas(project.id)
     for key in quotaclasses[project.quotaclass]["network"]:
         if quotaclasses[project.quotaclass]["network"][key] * multiplier_network != quotanetwork[key]:
-            print("%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key] * multiplier_network, quotanetwork[key]))
+            logging.info("%s [ network / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["network"][key] * multiplier_network, quotanetwork[key]))
             cloud.set_network_quotas(project.id, **{key: quotaclasses[project.quotaclass]["network"][key] * multiplier_network})
 
-    print("check compute quota for %s" % project.name)
+    logging.info("check compute quota for %s" % project.name)
     quotacompute = cloud.get_compute_quotas(project.id)
     for key in quotaclasses[project.quotaclass]["compute"]:
         if key in ["injected_file_content_bytes", "metadata_items", "injected_file_path_bytes"]:
@@ -84,10 +87,10 @@ def check_quota(project, cloud):
         else:
             tmultiplier = multiplier_compute
         if quotaclasses[project.quotaclass]["compute"][key] * tmultiplier != quotacompute[key]:
-            print("%s [ compute / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["compute"][key] * tmultiplier, quotacompute[key]))
+            logging.info("%s [ compute / %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["compute"][key] * tmultiplier, quotacompute[key]))
             cloud.set_compute_quotas(project.id, **{key: quotaclasses[project.quotaclass]["compute"][key] * tmultiplier})
 
-    print("check volume quota for %s" % project.name)
+    logging.info("check volume quota for %s" % project.name)
     quotavolume = cloud.get_volume_quotas(project.id)
     for key in quotaclasses[project.quotaclass]["volume"]:
         if key in ["per_volume_gigabytes"]:
@@ -95,7 +98,7 @@ def check_quota(project, cloud):
         else:
             tmultiplier = multiplier_storage
         if quotaclasses[project.quotaclass]["volume"][key] * tmultiplier != quotavolume[key]:
-            print("%s [ volume %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["volume"][key] * tmultiplier, quotavolume[key]))
+            logging.info("%s [ volume %s ] %d != %d" % (project.name, key, quotaclasses[project.quotaclass]["volume"][key] * tmultiplier, quotavolume[key]))
             cloud.set_volume_quotas(project.id, **{key: quotaclasses[project.quotaclass]["volume"][key] * tmultiplier})
 
 
@@ -147,7 +150,7 @@ def create_network_with_router(project, net_name, subnet_name, router_name, publ
 
     if not router:
         public_network_id = cloud.get_network(public_net_name).id
-        print("create router for %s (%s)" % (project.name, public_net_name))
+        logging.info("create router for %s (%s)" % (project.name, public_net_name))
         router = cloud.create_router(
             name=router_name,
             ext_gateway_net_id=public_network_id,
@@ -158,12 +161,12 @@ def create_network_with_router(project, net_name, subnet_name, router_name, publ
 
     net = cloud.get_network(net_name)
     if not net:
-        print("create network for %s (%s)" % (project.name, public_net_name))
+        logging.info("create network for %s (%s)" % (project.name, public_net_name))
         net = cloud.create_network(net_name, project_id=project.id)
 
     subnet = cloud.get_subnet(subnet_name)
     if not subnet:
-        print("create subnetwork for %s (%s)" % (project.name, public_net_name))
+        logging.info("create subnetwork for %s (%s)" % (project.name, public_net_name))
         subnet = cloud.create_subnet(
             net.id,
             tenant_id=project.id,
@@ -191,23 +194,23 @@ neutron = os_client_config.make_client("network", cloud=CLOUDNAME)
 
 project = cloud.get_project(PROJECT)
 if not project:
-    print("project %s does not exist" % PROJECT)
+    logging.error("project %s does not exist" % PROJECT)
     sys.exit(1)
 
 if project.domain_id == "default":
-    print("projects in the default domain are not managed")
+    logging.error("projects in the default domain are not managed")
     sys.exit(1)
 
 # prepare project
 
-print("prepare project %s (%s)" % (project.name, project.id))
+logging.info("prepare project %s (%s)" % (project.name, project.id))
 
 check_endpoint_groups(project)
 
 if "quotaclass" not in project:
-    print("quotaclass for project %s not set" % project.name)
+    logging.warning("quotaclass for project %s not set" % project.name)
 elif project.quotaclass not in quotaclasses:
-    print("quotaclass %s for project %s not defined" % (project.quotaclass, project.name))
+    logging.warning("quotaclass %s for project %s not defined" % (project.quotaclass, project.name))
 else:
     check_quota(project, cloud)
 
