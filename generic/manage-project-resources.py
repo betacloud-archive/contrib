@@ -120,6 +120,8 @@ def create_network_resources(project, domain):
     domain_name = domain.name.lower()
     project_name = project.name.lower()
 
+    logging.info("create network resources for %s" % project.name)
+
     if "has_public_network" in project and project.has_public_network.lower() in ["true", "True", "yes", "Yes"]:
         net_name = "net-to-public-%s" % project_name
         router_name = "router-to-public-%s" % project_name
