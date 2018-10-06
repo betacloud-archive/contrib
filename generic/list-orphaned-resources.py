@@ -79,6 +79,8 @@ if __name__ == '__main__':
     check("neutron", "subnet", clients["neutron"].list_subnets()["subnets"], projects)
     check("neutron", "floatingip", clients["neutron"].list_floatingips()["floatingips"], projects)
     check("neutron", "rbacpolicy", clients["neutron"].list_rbac_policies()["rbac_policies"], projects)
+    check("neutron", "securitygroup", clients["neutron"].list_security_groups()["security_groups"], projects)
+    check("neutron", "securitygrouprule", clients["neutron"].list_security_group_rules()["security_group_rules"], projects)
 
     check("glance", "image", clients["glance"].images.list(), projects)
 
