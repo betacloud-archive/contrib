@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     check("glance", "image", clients["glance"].images.list(), projects)
     for image in [image for image in clients["glance"].images.list() if image.visibility == "shared"]:
-        check("glance", "imagemember", clients["glance"].image_members.list(image.id), projects
+        check("glance", "imagemember", clients["glance"].image_members.list(image.id), projects)
 
     check("cinder", "volume", clients["cinder"].volumes.list(search_opts={"all_tenants": True}), projects)
     check("cinder", "volume-snapshot", clients["cinder"].volume_snapshots.list(search_opts={"all_tenants": True}), projects)
