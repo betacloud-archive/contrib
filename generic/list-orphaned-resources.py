@@ -49,6 +49,10 @@ def check(servicename, resourcename, resources, projects):
         if project_id and project_id not in projects:
             print("%s - %s: %s (project: %s)" % (servicename, resourcename, resource_id, project_id))
 
+        if resourcename == "rbacpolicy" and resource.get("target_tenant") not in projects:
+            print("%s - %s: %s (project: %s)" % (servicename, resourcename, resource_id, project_id))
+
+
 if __name__ == '__main__':
     CONF(sys.argv[1:], project=PROJECT_NAME)
     keystone = os_client_config.make_client('identity', cloud=CONF.cloud)
@@ -74,6 +78,7 @@ if __name__ == '__main__':
     check("neutron", "network", clients["neutron"].list_networks()["networks"], projects)
     check("neutron", "subnet", clients["neutron"].list_subnets()["subnets"], projects)
     check("neutron", "floatingip", clients["neutron"].list_floatingips()["floatingips"], projects)
+    check("neutron", "rbacpolicy", clients["neutron"].list_rbac_policies()["rbac_policies"], projects)
 
     check("glance", "image", clients["glance"].images.list(), projects)
 
