@@ -36,6 +36,8 @@ def check(servicename, resourcename, resources, projects):
                 project_id = getattr(resource, "os-vol-tenant-attr:tenant_id")
             elif hasattr(resource, "project"):
                 project_id = resource.project
+            elif hasattr(resource, "member_id"):
+                project_id = resource.member_id
             else:
                 project_id = resource.get("project_id")
         except:
@@ -83,6 +85,8 @@ if __name__ == '__main__':
     check("neutron", "securitygrouprule", clients["neutron"].list_security_group_rules()["security_group_rules"], projects)
 
     check("glance", "image", clients["glance"].images.list(), projects)
+    for image in [image for image in clients["glance"].images.list() if image.visibility == "shared"]:
+        check("glance", "imagemember", clients["glance"].image_members.list(image.id), projects
 
     check("cinder", "volume", clients["cinder"].volumes.list(search_opts={"all_tenants": True}), projects)
     check("cinder", "volume-snapshot", clients["cinder"].volume_snapshots.list(search_opts={"all_tenants": True}), projects)
