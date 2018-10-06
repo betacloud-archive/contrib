@@ -34,6 +34,8 @@ def check(servicename, resourcename, resources, projects):
                 project_id = resource.project_id
             elif hasattr(resource, "os-vol-tenant-attr:tenant_id"):
                 project_id = getattr(resource, "os-vol-tenant-attr:tenant_id")
+            elif hasattr(resource, "project"):
+                project_id = resource.project
             else:
                 project_id = resource.get("project_id")
         except:
@@ -55,6 +57,7 @@ if __name__ == '__main__':
         "glance": os_client_config.make_client('image', cloud=CONF.cloud),
         "neutron": os_client_config.make_client('network', cloud=CONF.cloud),
         "nova": os_client_config.make_client('compute', cloud=CONF.cloud),
+        "heat": os_client_config.make_client('orchestration', cloud=CONF.cloud),
     }
 
     domains = [x for x in keystone.domains.list() if x.name != "heat_user_domain"]
@@ -77,3 +80,5 @@ if __name__ == '__main__':
     check("cinder", "volume", clients["cinder"].volumes.list(search_opts={"all_tenants": True}), projects)
     check("cinder", "volume-snapshot", clients["cinder"].volume_snapshots.list(search_opts={"all_tenants": True}), projects)
     check("cinder", "backups", clients["cinder"].backups.list(search_opts={"all_tenants": True}), projects)
+
+    check("heat", "stack", clients["heat"].stacks.list(), projects)
