@@ -150,7 +150,7 @@ def create_network_with_router(project, net_name, subnet_name, router_name, publ
     except neutronclient.common.exceptions.Conflict:
         pass
 
-    router = cloud.get_router(router_name)
+    router = cloud.get_router(router_name, filters={"project_id": project.id})
     attach = False
 
     if not router:
@@ -164,12 +164,12 @@ def create_network_with_router(project, net_name, subnet_name, router_name, publ
         )
         attach = True
 
-    net = cloud.get_network(net_name)
+    net = cloud.get_network(net_name, filters={"project_id": project.id})
     if not net:
         logging.info("create network for %s (%s)" % (project.name, public_net_name))
         net = cloud.create_network(net_name, project_id=project.id)
 
-    subnet = cloud.get_subnet(subnet_name)
+    subnet = cloud.get_subnet(subnet_name, filters={"project_id": project.id})
     if not subnet:
         logging.info("create subnetwork for %s (%s)" % (project.name, public_net_name))
         subnet = cloud.create_subnet(
