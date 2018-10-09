@@ -1,5 +1,5 @@
 jinja2
-python-openstacksdk
+openstacksdk
 os-client-config
 oslo.config
 oslo.log
