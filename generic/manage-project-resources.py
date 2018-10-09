@@ -18,8 +18,8 @@ import sys
 import time
 
 import neutronclient
+import openstack
 import os_client_config
-import shade
 import yaml
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -192,7 +192,7 @@ with open("etc/quotaclasses.yml", "r") as fp:
 
 # get connections
 
-cloud = shade.operator_cloud(cloud=CLOUDNAME)
+cloud = openstack.connect(cloud=CLOUDNAME)
 neutron = os_client_config.make_client("network", cloud=CLOUDNAME)
 
 # check existence of project
