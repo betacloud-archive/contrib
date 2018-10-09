@@ -14,9 +14,8 @@
 
 import sys
 
-import os_client_config
 from oslo_config import cfg
-import shade
+import os_client_config
 
 PROJECT_NAME = 'list-orphaned-resources'
 CONF = cfg.CONF
