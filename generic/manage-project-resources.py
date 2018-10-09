@@ -139,7 +139,7 @@ def create_network_resources(project, domain):
 
 def create_network_with_router(project, net_name, subnet_name, router_name, public_net_name):
     try:
-       logging.info("check rbac policy for %s (%s)" % (project.name, public_net_name))
+        logging.info("check rbac policy for %s (%s)" % (project.name, public_net_name))
         public_net = cloud.get_network(public_net_name)
         neutron.create_rbac_policy({'rbac_policy': {
             'target_tenant': project.id,
