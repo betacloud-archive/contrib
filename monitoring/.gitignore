@@ -1,0 +1,3 @@
+check_elasticsearch
+check_galera_cluster
+check_rabbitmq_cluster
