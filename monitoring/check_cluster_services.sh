@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# required packages:
+#
+# bc
+# libjson-perl
+# libmonitoring-plugin-perl
+# libwww-perl
+# mariadb-client
+
 if [[ $# -lt 1 ]]; then
 
     echo usage: $0 CONFIGURATION
