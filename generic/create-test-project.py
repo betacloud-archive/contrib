@@ -19,7 +19,8 @@ opts = [
   cfg.StrOpt('domain', help='Domain', default='testbed'),
   cfg.StrOpt('projectname', help='Projectname', default='test-123'),
   cfg.StrOpt('quotaclass', help='Quota class', default='basic'),
-  cfg.StrOpt('username', help='Username', default='test-123')
+  cfg.StrOpt('username', help='Username', default='test-123'),
+  cfg.StrOpt('owner', help='Owner of the project', default='operations@betacloud.io')
 ]
 CONF.register_cli_opts(opts)
 
@@ -49,6 +50,7 @@ keystone.projects.update(project=project.id, quotaclass=CONF.quotaclass)
 keystone.projects.update(project=project.id, quotamultiplier=CONF.quotamultiplier)
 keystone.projects.update(project=project.id, has_domain_network="False")
 keystone.projects.update(project=project.id, has_public_network="True")
+keystone.projects.update(project=project.id, owner=CONF.owner)
 
 user = conn.identity.find_user(username, domain_id=domain.id)
 if not user:
