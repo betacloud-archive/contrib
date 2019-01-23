@@ -19,7 +19,7 @@ opts = [
   cfg.StrOpt('domain', help='Domain', default='orange'),
   cfg.StrOpt('name', help='Projectname', default='test-123'),
   cfg.StrOpt('owner', help='Owner of the project', default='operations@betacloud.io'),
-  cfg.StrOpt('password', help='Password', default='PaSSw0rD'),
+  cfg.StrOpt('password', help='Password', default=None),
   cfg.StrOpt('quotaclass', help='Quota class', default='basic')
 ]
 CONF.register_cli_opts(opts)
@@ -29,9 +29,12 @@ conn = openstack.connect(cloud=CONF.cloud)
 
 if CONF.random:
     name = "test-" + "".join(random.choice(string.ascii_letters) for x in range(8)).lower()
-    password = "".join(random.choice(string.ascii_letters + string.digits) for x in range(16))
 else:
     name = CONF.name
+
+if not CONF.password:
+    password = "".join(random.choice(string.ascii_letters + string.digits) for x in range(16))
+else:
     password = CONF.password
 
 # FIXME(berendt): use get_domain
