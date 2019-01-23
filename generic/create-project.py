@@ -15,6 +15,9 @@ CONF = cfg.CONF
 opts = [
   cfg.BoolOpt('random', help='Generate random names', default=False),
   cfg.IntOpt('quotamultiplier', help='Quota multiplier', default='1'),
+  cfg.IntOpt('quotamultiplier_compute', help='Quota multiplier compute', default=None),
+  cfg.IntOpt('quotamultiplier_network', help='Quota multiplier network', default=None),
+  cfg.IntOpt('quotamultiplier_storage', help='Quota multiplier storage', default=None),
   cfg.StrOpt('cloud', help='Managed cloud', default='service'),
   cfg.StrOpt('domain', help='Domain', default='orange'),
   cfg.StrOpt('name', help='Projectname', default='test-123'),
@@ -47,10 +50,19 @@ if not project:
 
 # FIXME(berendt): use openstacksdk
 keystone = os_client_config.make_client('identity', cloud=CONF.cloud)
+
 keystone.projects.update(project=project.id, quotaclass=CONF.quotaclass)
 keystone.projects.update(project=project.id, quotamultiplier=CONF.quotamultiplier)
+if CONF.quotamultiplier_compute:
+    keystone.projects.update(project=project.id, quotamultiplier_compute=CONF.quotamultiplier_compute)
+if CONF.quotamultiplier_network:
+    keystone.projects.update(project=project.id, quotamultiplier_network=CONF.quotamultiplier_network)
+if CONF.quotamultiplier_storage:
+    keystone.projects.update(project=project.id, quotamultiplier_storage=CONF.quotamultiplier_storage)
+
 keystone.projects.update(project=project.id, has_domain_network="False")
 keystone.projects.update(project=project.id, has_public_network="True")
+
 keystone.projects.update(project=project.id, owner=CONF.owner)
 
 user = conn.identity.find_user(name, domain_id=domain.id)
