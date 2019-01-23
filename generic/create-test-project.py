@@ -16,7 +16,7 @@ opts = [
   cfg.BoolOpt('random', help='Generate random names', default=False),
   cfg.IntOpt('quotamultiplier', help='Quota multiplier', default='1'),
   cfg.StrOpt('cloud', help='Managed cloud', default='service'),
-  cfg.StrOpt('domain', help='Domain', default='testbed'),
+  cfg.StrOpt('domain', help='Domain', default='orange'),
   cfg.StrOpt('name', help='Projectname', default='test-123'),
   cfg.StrOpt('password', help='Password', default='PaSSw0rD'),
   cfg.StrOpt('quotaclass', help='Quota class', default='basic'),
