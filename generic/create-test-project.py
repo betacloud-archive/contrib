@@ -18,6 +18,7 @@ opts = [
   cfg.StrOpt('cloud', help='Managed cloud', default='service'),
   cfg.StrOpt('domain', help='Domain', default='testbed'),
   cfg.StrOpt('name', help='Projectname', default='test-123'),
+  cfg.StrOpt('password', help='Password', default='PaSSw0rD'),
   cfg.StrOpt('quotaclass', help='Quota class', default='basic'),
   cfg.StrOpt('owner', help='Owner of the project', default='operations@betacloud.io')
 ]
@@ -28,10 +29,10 @@ conn = openstack.connect(cloud=CONF.cloud)
 
 if CONF.random:
     name = "test-" + "".join(random.choice(string.ascii_letters) for x in range(8)).lower()
+    password = "".join(random.choice(string.ascii_letters + string.digits) for x in range(16))
 else:
     name = CONF.name
-
-password = "".join(random.choice(string.ascii_letters + string.digits) for x in range(16))
+    password = CONF.password
 
 # FIXME(berendt): use get_domain
 domain = conn.identity.find_domain(CONF.domain)
@@ -51,7 +52,7 @@ keystone.projects.update(project=project.id, owner=CONF.owner)
 
 user = conn.identity.find_user(name, domain_id=domain.id)
 if not user:
-    user = conn.create_user(name=name, password=password, default_project=project, domain_id=domain.id)
+    user = conn.create_user(name=name, password=password, default_project=project, domain_id=domain.id, email=CONF.owner)
 else:
     conn.update_user(user, password=password)
 
