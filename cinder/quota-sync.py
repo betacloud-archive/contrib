@@ -59,7 +59,7 @@ def yn_choice():
     yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
 
-    print "Do you want to sync? [Yes/No]"
+    print("Do you want to sync? [Yes/No]")
     while True:
         choice = raw_input().lower()
         if choice in yes:
@@ -74,7 +74,7 @@ def sync_quota_usages_project(meta, project_id, quota_usages_to_sync):
 
     """Sync the quota usages of a project from real usages"""
 
-    print "Syncing %s" % (project_id)
+    print("Syncing %s" % (project_id))
     now = datetime.datetime.utcnow()
     quota_usages_t = Table('quota_usages', meta, autoload=True)
     for resource, quota in quota_usages_to_sync.iteritems():
@@ -214,12 +214,12 @@ def main():
     #
     if args.list_projects:
         for p in get_projects(cinder_metadata):
-            print p
+            print(p)
         sys.exit(0)
 
     # check a single project
     #
-    print "Checking " + args.project_id + " ..."
+    print("Checking " + args.project_id + " ...")
 
     # get the quota usage of a project
     quota_usages = {}
@@ -267,7 +267,7 @@ def main():
             pass
 
     if len(quota_usages):
-        print ptable
+        print(ptable)
 
     # sync the quota with the real usage
     if quota_usages_to_sync and not args.nosync and (args.sync or yn_choice()):

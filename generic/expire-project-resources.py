@@ -68,7 +68,7 @@ def send_mail(to, payload):
               "to": to,
               "subject": payload["subject"],
               "text": payload["body"]})
-    print result.text
+    print(result.text)
 
 
 # preparations
