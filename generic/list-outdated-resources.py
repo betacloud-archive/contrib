@@ -69,7 +69,7 @@ if __name__ == '__main__':
     threshold = timedelta(days=CONF.threshold)
 
     for instance in cloud.list_servers(filters={"project_id": project.id}):
-        created_at = parse(instance.created_at)
+        created_at = parse(instance.properties['created_at'])
         expiration = created_at + threshold
 
         if instance.status == "ACTIVE" and expiration < now:
