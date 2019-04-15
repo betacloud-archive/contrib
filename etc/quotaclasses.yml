@@ -119,7 +119,7 @@ basic:
     security_group: 5
     security_group_rule: 20
     subnet: 2
-    subnetpool: 0
+    subnetpool: 1
   volume:
     backup_gigabytes: 0
     backups: 0
