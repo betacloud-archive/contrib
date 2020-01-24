@@ -108,7 +108,7 @@ basic:
     floatingip: 4
     healthmonitor: 5
     l7policy: 5
-    listener: 1
+    listener: 2
     loadbalancer: 1
     member: 5
     network: 1
